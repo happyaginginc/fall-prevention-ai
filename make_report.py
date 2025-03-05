@@ -490,7 +490,6 @@ async def generate_report(servey : dict):
     new_docx_name = f"{current_time_string}_{name}.docx" # docx 파일 이름
     new_pdf_name = f"{current_time_string}_{name}.pdf" # pdf 파일 이름
     new_docx_path = os.path.join(folder_path_pdf, new_docx_name) # folder_path_pdf는 pdf를 저장하는 폴더 위치
-    new_pdf_path = os.path.join(folder_path_pdf, new_pdf_name) # folder_path_pdf만 바꾸면 저장위치 자유롭게 바뀜
 
 
     # PDF 만들기
@@ -511,19 +510,25 @@ async def generate_report(servey : dict):
         item_id, item_location = item
         goods_result.append({"id": item_id, "location": item_location})
 
-    # 이름_날짜
-    url = new_pdf_path
-    return {'rank': final_level, 'report': url, 'summary': summary, 'product': goods_result}
+    return {'rank': final_level, 'report': new_pdf_name, 'summary': summary, 'product': goods_result}
 
 @app.get("/downloadPDF")
-async def download_pdf(url: str):
-    if not os.path.exists(url):
+async def download_pdf(filename: str):
+    # config.ini에서 pdf 저장 폴더 경로 읽기
+    config = configparser.ConfigParser()
+    config.read('./config.ini', encoding='utf-8')
+    folder_path_pdf = config['makeReport']['pdf_folder_path']
+    
+    # 파일 전체 경로 구성
+    file_path = os.path.join(folder_path_pdf, filename)
+    
+    if not os.path.exists(file_path):
         return {"error": "파일을 찾을 수 없습니다."}
     
     return FileResponse(
-        path=url,
+        path=file_path,
         media_type='application/pdf',
-        filename=os.path.basename(url)
+        filename=filename
     )
 
 if __name__ == "__main__" :

@@ -1,0 +1,32 @@
+name: Deploy on prod push
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy-to-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd /home/ubuntu/fall-prevention-ai  # 실제 docker-compose.yml 위치에 맞게 수정
+            echo "${{ secrets.DOCKERHUB_PASSWORD }}" | sudo docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/fall-prevention-ai:latest
+            sudo docker compose pull
+            sudo docker compose up -d --build
+            exit
+          EOF

@@ -10,6 +10,12 @@ services:
       - .env
     volumes:
       - reports_data:/app/reports
+    networks:
+      - fall-prevention-network
 
 volumes:
   reports_data:
+
+networks:
+  fall-prevention-network:
+    external: true

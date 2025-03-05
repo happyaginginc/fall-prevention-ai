@@ -6,6 +6,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from datetime import datetime
 import configparser
@@ -514,6 +515,16 @@ async def generate_report(servey : dict):
     url = new_pdf_path
     return {'rank': final_level, 'report': url, 'summary': summary, 'product': goods_result}
 
+@app.get("/downloadPDF")
+async def download_pdf(url: str):
+    if not os.path.exists(url):
+        return {"error": "파일을 찾을 수 없습니다."}
+    
+    return FileResponse(
+        path=url,
+        media_type='application/pdf',
+        filename=os.path.basename(url)
+    )
 
 if __name__ == "__main__" :
-    uvicorn.run(app, host="localhost", port=os.getenv("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=8081)

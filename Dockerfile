@@ -29,8 +29,5 @@ RUN pip install --no-cache-dir \
     scikit-learn \
     openai==0.28
 
-# Host와 Port 지정
-EXPOSE 8000
-
 # 서버 실행
-CMD ["uvicorn", "make_report:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "make_report:app", "--host", "0.0.0.0", "--port", "8081"]

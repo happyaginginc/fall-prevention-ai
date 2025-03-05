@@ -1,7 +1,8 @@
 version: "3.8"
 services:
   fall-prevention-service:
-    build: .
+    image: ${DOCKERHUB_USERNAME}/fall-prevention:latest
+    restart: always
     container_name: "fall-prevention-ai"
     ports:
       - "8081:8081"
